@@ -1,0 +1,52 @@
+{
+  "name": "rust-morph",
+  "version": "0.1.0",
+  "private": false,
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "description": "Typescript library for Rust codegeneration",
+  "main": "index.js",
+  "scripts": {
+    "build": "vite build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/movpushmov/rust-morph.git"
+  },
+  "keywords": [
+    "rust",
+    "code",
+    "codegeneration",
+    "generation",
+    "generate",
+    "typescript",
+    "ts",
+    "js",
+    "javascript"
+  ],
+  "author": "movpushmov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/movpushmov/rust-morph/issues"
+  },
+  "homepage": "https://github.com/movpushmov/rust-morph#readme",
+  "devDependencies": {
+    "@types/node": "^22.8.1",
+    "vite": "^5.4.10",
+    "vite-plugin-dts": "^4.3.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}
