@@ -1,26 +1,28 @@
-import { AstNode, Expression, Literal, Type } from "./base";
+import { AstNode, Expression, Type } from "./base";
 import { FunctionDeclaration } from "./fn";
-import { optional, withNextPaddingLevel, withPadding } from "./lib";
+import { NodeType, optional, withNextPaddingLevel, withPadding } from "./lib";
 
 export class StructPropertyDeclaration implements AstNode {
+  readonly type = NodeType.StructPropertyDeclaration;
   public identifier: string;
   public isPublic: boolean;
-  public type: Type;
+  public propertyType: Type;
 
   constructor(options: { identifier: string; isPublic: boolean; type: Type }) {
     this.identifier = options.identifier;
     this.isPublic = options.isPublic;
-    this.type = options.type;
+    this.propertyType = options.type;
   }
 
   print(): string {
     const p = optional(this.isPublic, "pub ");
 
-    return `${p}${this.identifier}: ${this.type.print()}`;
+    return `${p}${this.identifier}: ${this.propertyType.print()}`;
   }
 }
 
 export class StructDeclaration implements AstNode {
+  readonly type = NodeType.StructDeclaration;
   public identifier: string;
   public isPublic: boolean;
   public properties: StructPropertyDeclaration[];
@@ -45,11 +47,12 @@ export class StructDeclaration implements AstNode {
           )
         : undefined;
 
-    return `${p}${this.identifier} ${pr ? `{\n${pr}\n}` : "{}"}`;
+    return `${p}struct ${this.identifier} ${pr ? `{\n${pr}\n}` : "{}"}`;
   }
 }
 
 export class StructInitPropertyStatement implements AstNode {
+  readonly type = NodeType.StructInitPropertyStatement;
   public identifier: string;
   public value: Expression;
 
@@ -64,6 +67,7 @@ export class StructInitPropertyStatement implements AstNode {
 }
 
 export class StructInitStatement implements AstNode {
+  readonly type = NodeType.StructInitStatement;
   public identifier: string;
   public parameters: StructInitPropertyStatement[];
 
@@ -91,6 +95,7 @@ export class StructInitStatement implements AstNode {
 }
 
 export class ImplDeclaration implements AstNode {
+  readonly type = NodeType.ImplDeclaration;
   public identifier: string;
   public declarations: FunctionDeclaration[];
 

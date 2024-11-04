@@ -6,7 +6,7 @@ import {
   Type,
   VariableStatement,
 } from "./base";
-import { optional, withNextPaddingLevel, withPadding } from "./lib";
+import { NodeType, optional, withNextPaddingLevel, withPadding } from "./lib";
 import { StructInitStatement } from "./struct";
 
 export enum BracesType {
@@ -19,12 +19,13 @@ type MacrosParameters = {
 };
 
 export class FunctionCall implements AstNode {
+  readonly type = NodeType.FunctionCall;
   public identifier: string;
   public isMacros: boolean;
   public isAwaited: boolean;
   public isFromNamespaceOrStruct: boolean;
   public passedParameters: Expression[];
-  public nextCalls: FunctionCall | PropertyGet;
+  public nextCalls?: FunctionCall | PropertyGet;
   public macrosParameters?: MacrosParameters;
 
   constructor(options: {
@@ -33,7 +34,7 @@ export class FunctionCall implements AstNode {
     isAwaited: boolean;
     isFromNamespaceOrStruct: boolean;
     passedParameters: Expression[];
-    nextCalls: FunctionCall | PropertyGet;
+    nextCalls?: FunctionCall | PropertyGet;
     macrosParameters?: MacrosParameters;
   }) {
     this.identifier = options.identifier;
@@ -53,13 +54,14 @@ export class FunctionCall implements AstNode {
     const rb =
       this.macrosParameters?.bracesType === BracesType.Rounded ? ")" : "]";
     const aw = optional(this.isAwaited, ".await");
-    const nc = this.nextCalls.print();
+    const nc = this.nextCalls?.print() ?? "";
 
     return `${nos}${this.identifier}${lb}${pp}${rb}${aw}${nc}`;
   }
 }
 
 export class SelfParameter implements AstNode {
+  readonly type = NodeType.SelfParameter;
   public isMutable: boolean;
 
   constructor(options: { isMutable: boolean }) {
@@ -72,20 +74,22 @@ export class SelfParameter implements AstNode {
 }
 
 export class FunctionDeclarationParameter implements AstNode {
+  readonly type = NodeType.FunctionDeclarationParameter;
   public identifier: string;
-  public type: Type;
+  public parameterType: Type;
 
   constructor(options: { identifier: string; type: Type }) {
     this.identifier = options.identifier;
-    this.type = options.type;
+    this.parameterType = options.type;
   }
 
   print(): string {
-    return `${this.identifier}: ${this.type.print()}`;
+    return `${this.identifier}: ${this.parameterType.print()}`;
   }
 }
 
 export class FunctionDeclaration implements AstNode {
+  readonly type = NodeType.FunctionDeclaration;
   public identifier: string;
   public isPublic: boolean;
   public isAsync: boolean;
@@ -130,6 +134,7 @@ export class FunctionDeclaration implements AstNode {
 }
 
 export class ReturnStatement implements AstNode {
+  readonly type = NodeType.ReturnStatement;
   public payload:
     | FunctionCall
     | VariableStatement

@@ -1,13 +1,23 @@
-import { EnumDeclaration } from "./enum";
-import { FunctionCall, FunctionDeclaration, ReturnStatement } from "./fn";
-import { optional } from "./lib";
+import { EnumDeclaration, EnumPropertyDeclaration } from "./enum";
+import {
+  FunctionCall,
+  FunctionDeclaration,
+  FunctionDeclarationParameter,
+  ReturnStatement,
+  SelfParameter,
+} from "./fn";
+import { UseStatement } from "./imports";
+import { NodeType, optional } from "./lib";
 import {
   ImplDeclaration,
   StructDeclaration,
+  StructInitPropertyStatement,
   StructInitStatement,
+  StructPropertyDeclaration,
 } from "./struct";
 
 export interface AstNode {
+  type: NodeType;
   print(): string;
 }
 
@@ -26,6 +36,7 @@ type RustTypeBase =
   | { identifier: string };
 
 export class Type implements AstNode {
+  readonly type = NodeType.Type;
   public base: RustTypeBase;
 
   public isReference: boolean;
@@ -58,6 +69,7 @@ export class Type implements AstNode {
 }
 
 export class MathOperation implements AstNode {
+  readonly type = NodeType.MathOperation;
   public leftOperand: Expression;
   public rightOperand: Expression;
 
@@ -76,9 +88,23 @@ export class AddOperation extends MathOperation implements AstNode {
     return `${this.leftOperand.print()} + ${this.rightOperand.print()}`;
   }
 }
-export class SubtractOperation extends MathOperation {}
-export class MultiplyOperation extends MathOperation {}
-export class DivideOperation extends MathOperation {}
+export class SubtractOperation extends MathOperation {
+  print(): string {
+    return `${this.leftOperand.print()} - ${this.rightOperand.print()}`;
+  }
+}
+
+export class MultiplyOperation extends MathOperation {
+  print(): string {
+    return `${this.leftOperand.print()} * ${this.rightOperand.print()}`;
+  }
+}
+
+export class DivideOperation extends MathOperation {
+  print(): string {
+    return `${this.leftOperand.print()} / ${this.rightOperand.print()}`;
+  }
+}
 
 export type Expression =
   | Literal
@@ -87,6 +113,8 @@ export type Expression =
   | FunctionCall;
 
 export class Literal implements AstNode {
+  readonly type = NodeType.Literal;
+
   constructor(public value: string) {}
 
   print(): string {
@@ -95,6 +123,8 @@ export class Literal implements AstNode {
 }
 
 export class VariableStatement implements AstNode {
+  readonly type = NodeType.VariableStatement;
+
   public isReference: boolean;
   public isMutable: boolean;
   public identifier: string;
@@ -129,6 +159,8 @@ export class VariableStatement implements AstNode {
 }
 
 export class PropertyGet implements AstNode {
+  readonly type = NodeType.PropertyGet;
+
   public identifier: string;
   public isAwaited: boolean;
   public isFromNamespaceOrStruct: boolean;
@@ -151,10 +183,12 @@ export class PropertyGet implements AstNode {
 }
 
 export class VariableDeclaration implements AstNode {
+  readonly type = NodeType.VariableDeclaration;
+
   public identifier: string;
   public isConst: boolean;
   public isMutable: boolean;
-  public type?: Type;
+  public variableType?: Type;
   public value?: Expression;
 
   constructor(options: {
@@ -167,13 +201,13 @@ export class VariableDeclaration implements AstNode {
     this.identifier = options.identifier;
     this.isConst = options.isConst;
     this.isMutable = options.isMutable;
-    this.type = options.type;
+    this.variableType = options.type;
     this.value = options.value;
   }
 
   print(): string {
     const c = this.isConst ? "const" : "let";
-    const t = optional(Boolean(this.type), `: ${this.type?.print()}`);
+    const t = optional(Boolean(this.type), `: ${this.variableType?.print()}`);
     const v = optional(Boolean(this.value), ` = ${this.value?.print()}`);
 
     return `${c} ${this.identifier}${t}${v}`;
@@ -189,6 +223,8 @@ export enum VariableChangeType {
 }
 
 export class VariableChangeStatement implements AstNode {
+  readonly type = NodeType.VariableChangeStatement;
+
   public toAssign: VariableStatement;
   public value: Expression;
   public changeType: VariableChangeType;
@@ -234,6 +270,8 @@ export class VariableChangeStatement implements AstNode {
 }
 
 export class NewLine implements AstNode {
+  readonly type = NodeType.NewLine;
+
   print(): string {
     return "";
   }
@@ -244,6 +282,22 @@ export class SelfStatement extends VariableStatement {
     const baseClassResult = super.print();
 
     return `self.${baseClassResult}`;
+  }
+}
+
+export class CommentStatement implements AstNode {
+  readonly type = NodeType.CommentStatement;
+
+  public content: string;
+  public isMultiline: boolean;
+
+  constructor(options: { content: string; isMultiline: boolean }) {
+    this.content = options.content;
+    this.isMultiline = options.isMultiline;
+  }
+
+  print(): string {
+    return this.isMultiline ? `/*${this.content}*/` : `// ${this.content}`;
   }
 }
 
@@ -258,4 +312,14 @@ export type CodeLine =
   | ImplDeclaration
   | StructInitStatement
   | ReturnStatement
-  | NewLine;
+  | NewLine
+  | CommentStatement
+  | UseStatement;
+
+export type AnyNode =
+  | CodeLine
+  | FunctionDeclarationParameter
+  | SelfParameter
+  | StructPropertyDeclaration
+  | StructInitPropertyStatement
+  | EnumPropertyDeclaration;

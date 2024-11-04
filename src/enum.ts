@@ -1,7 +1,8 @@
 import { AstNode } from "./base";
-import { optional, withNextPaddingLevel } from "./lib";
+import { NodeType, optional, withNextPaddingLevel } from "./lib";
 
-export class EnumPropertyDefinition implements AstNode {
+export class EnumPropertyDeclaration implements AstNode {
+  readonly type = NodeType.EnumPropertyDeclaration;
   public identifier: string;
   public value?: string | number;
 
@@ -18,14 +19,15 @@ export class EnumPropertyDefinition implements AstNode {
 }
 
 export class EnumDeclaration implements AstNode {
+  readonly type = NodeType.EnumDeclaration;
   public identifier: string;
   public isPublic: boolean;
-  public fields: EnumPropertyDefinition[];
+  public fields: EnumPropertyDeclaration[];
 
   constructor(options: {
     identifier: string;
     isPublic: boolean;
-    fields: EnumPropertyDefinition[];
+    fields: EnumPropertyDeclaration[];
   }) {
     this.identifier = options.identifier;
     this.isPublic = options.isPublic;
@@ -40,6 +42,6 @@ export class EnumDeclaration implements AstNode {
         ? withNextPaddingLevel(() => this.fields.map((f) => f.print()), ",\n")
         : undefined;
 
-    return `${p}${i} {\n${f ?? ""}\n}`;
+    return `${p}enum ${i} {\n${f ?? ""}\n}`;
   }
 }
