@@ -1,7 +1,9 @@
 export * from "./base";
-export * from "./enum";
-export * from "./fn";
-export * from "./source";
-export * from "./struct";
+export * from "./enums";
+export * from "./fns";
+export * from "./sources";
+export * from "./structs";
 export * from "./imports";
+export * from "./traits";
+
 export { isRustPrimitiveType } from "./lib";

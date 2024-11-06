@@ -1,11 +1,11 @@
-import { EnumDeclaration, EnumPropertyDeclaration } from "./enum";
+import { EnumDeclaration, EnumPropertyDeclaration } from "./enums";
 import {
   FunctionCall,
   FunctionDeclaration,
   FunctionDeclarationParameter,
   ReturnStatement,
   SelfParameter,
-} from "./fn";
+} from "./fns";
 import { UseStatement } from "./imports";
 import { NodeType, optional } from "./lib";
 import {
@@ -14,14 +14,15 @@ import {
   StructInitPropertyStatement,
   StructInitStatement,
   StructPropertyDeclaration,
-} from "./struct";
+} from "./structs";
+import { TraitDeclaration, TraitFunctionDeclaration } from "./traits";
 
 export interface AstNode {
   type: NodeType;
   print(): string;
 }
 
-type RustTypeBase =
+export type RustPrimitiveType =
   | "u8"
   | "u16"
   | "u32"
@@ -32,8 +33,9 @@ type RustTypeBase =
   | "i64"
   | "f32"
   | "String"
-  | "bool"
-  | { identifier: string };
+  | "bool";
+
+export type RustTypeBase = RustPrimitiveType | { identifier: string };
 
 export class Type implements AstNode {
   readonly type = NodeType.Type;
@@ -278,10 +280,13 @@ export class NewLine implements AstNode {
 }
 
 export class SelfStatement extends VariableStatement {
-  print(): string {
-    const baseClassResult = super.print();
-
-    return `self.${baseClassResult}`;
+  constructor(options: {
+    isReference: boolean;
+    isMutable: boolean;
+    nextStatement?: FunctionCall | PropertyGet;
+    lifetime?: string;
+  }) {
+    super({ ...options, identifier: "self" });
   }
 }
 
@@ -310,6 +315,7 @@ export type CodeLine =
   | StructDeclaration
   | EnumDeclaration
   | ImplDeclaration
+  | TraitDeclaration
   | StructInitStatement
   | ReturnStatement
   | NewLine
@@ -322,4 +328,5 @@ export type AnyNode =
   | SelfParameter
   | StructPropertyDeclaration
   | StructInitPropertyStatement
-  | EnumPropertyDeclaration;
+  | EnumPropertyDeclaration
+  | TraitFunctionDeclaration;

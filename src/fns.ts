@@ -7,7 +7,7 @@ import {
   VariableStatement,
 } from "./base";
 import { NodeType, optional, withNextPaddingLevel, withPadding } from "./lib";
-import { StructInitStatement } from "./struct";
+import { StructInitStatement } from "./structs";
 
 export enum BracesType {
   Squared,
@@ -93,7 +93,7 @@ export class FunctionDeclaration implements AstNode {
   public identifier: string;
   public isPublic: boolean;
   public isAsync: boolean;
-  public returnType: Type;
+  public returnType?: Type;
   public parameters: (FunctionDeclarationParameter | SelfParameter)[];
   public body: CodeLine[];
 
@@ -101,7 +101,7 @@ export class FunctionDeclaration implements AstNode {
     identifier: string;
     isPublic: boolean;
     isAsync: boolean;
-    returnType: Type;
+    returnType?: Type;
     parameters: (FunctionDeclarationParameter | SelfParameter)[];
     body: CodeLine[];
   }) {
@@ -119,7 +119,7 @@ export class FunctionDeclaration implements AstNode {
     const params = this.parameters.map((p) => p.print()).join(", ");
     const t = optional(
       Boolean(this.returnType),
-      ` -> ${this.returnType.print()}`
+      ` -> ${this.returnType?.print()}`
     );
 
     const b =

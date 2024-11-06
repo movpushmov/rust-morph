@@ -1,5 +1,5 @@
 import { AstNode, Expression, Type } from "./base";
-import { FunctionDeclaration } from "./fn";
+import { FunctionDeclaration } from "./fns";
 import { NodeType, optional, withNextPaddingLevel, withPadding } from "./lib";
 
 export class StructPropertyDeclaration implements AstNode {
@@ -97,14 +97,17 @@ export class StructInitStatement implements AstNode {
 export class ImplDeclaration implements AstNode {
   readonly type = NodeType.ImplDeclaration;
   public identifier: string;
+  public for?: string;
   public declarations: FunctionDeclaration[];
 
   constructor(options: {
     identifier: string;
+    for?: string;
     declarations: FunctionDeclaration[];
   }) {
     this.identifier = options.identifier;
     this.declarations = options.declarations;
+    this.for = options.for;
   }
 
   print(): string {
@@ -113,6 +116,8 @@ export class ImplDeclaration implements AstNode {
       "\n\n"
     );
 
-    return `impl ${this.identifier} {\n${declarations}\n}`;
+    const f = this.for ? ` for ${this.for} ` : " ";
+
+    return `impl ${this.identifier}${f}{\n${declarations}\n}`;
   }
 }

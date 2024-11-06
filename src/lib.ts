@@ -26,6 +26,8 @@ export enum NodeType {
   StructInitPropertyStatement = "struct-init-property-statement",
   StructInitStatement = "struct-init-statement",
   ImplDeclaration = "impl-declaration",
+  TraitDeclaration = "trait-declaration",
+  TraitFunctionDeclaration = "trait-function-declaration",
 }
 
 export function optional(condition: boolean, result: string) {
